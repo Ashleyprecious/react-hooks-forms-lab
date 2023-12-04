@@ -1,54 +1,48 @@
-import React from "react";
-import { v4 as uuid } from "uuid";
-import { useState } from "react";
+import React, { useState } from "react";
+
 function ItemForm({ onItemFormSubmit }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "Produce",
-  });
-  function handleSubmit(event) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
+
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
     event.preventDefault();
     const newItem = {
-      id: uuid(), // the `uuid` library can be used to generate a unique id
-      name: formData.name,
-      category: formData.category,
+      id: Math.random().toString(36).substr(2, 9),
+      name,
+      category,
     };
-    onItemFormSubmit(newItem)
-    setFormData({
-      name: "",
-      category: "Produce",
-    });
-  }
+    onItemFormSubmit(newItem); // Pass the new item to the callback function
+    setName(""); // Reset the form after submission
+    setCategory("");
+  };
+
   return (
-    <form className="NewItem" onSubmit={(e) => handleSubmit(e)}>
+    <form onSubmit={handleSubmit}>
       <label>
         Name:
-        <input type="text"
-          name="name"
-          value={formData.name}
-          onChange={event => setFormData({
-            ...formData,
-            name: event.target.value
-          })}
+        <input
+          type="text"
+          value={name}
+          onChange={handleNameChange}
+          aria-label="Name"
         />
       </label>
-
       <label>
         Category:
-        <select
-          name="category"
-          value={formData.category}
-          onChange={event => setFormData({
-            ...formData,
-            category: event.target.value
-          })}
-        >
+        <select value={category} onChange={handleCategoryChange} aria-label="Category">
           <option value="Produce">Produce</option>
           <option value="Dairy">Dairy</option>
           <option value="Dessert">Dessert</option>
         </select>
       </label>
-
       <button type="submit">Add to List</button>
     </form>
   );

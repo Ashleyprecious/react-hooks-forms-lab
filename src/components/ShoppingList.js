@@ -3,40 +3,39 @@ import ItemForm from "./ItemForm";
 import Filter from "./Filter";
 import Item from "./Item";
 
-function ShoppingList({ items, onItemFormSubmit }) {
+function ShoppingList({ items: initialItems }) {
+  const [items, setItems] = useState(initialItems);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  function onSearchChange(event) {
-    setSearch(event.target.value);
-  }
-  function handleCategoryChange(event) {
-    setSelectedCategory(event.target.value);
-  }
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+  };
 
-  const itemsToDisplay = items.filter((item) => {
-    if (selectedCategory === "All") return true;
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+  };
 
-    return item.category === selectedCategory;
+  const filteredItems = items.filter((item) => {
+    const categoryCondition =
+      selectedCategory === "All" || item.category === selectedCategory;
+    const searchCondition = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return categoryCondition && searchCondition;
   });
+
+  const handleItemFormSubmit = (newItem) => {
+    setItems([...items, newItem]); // Add the new item to the list
+  };
+
   return (
     <div className="ShoppingList">
-      <ItemForm onItemFormSubmit={onItemFormSubmit} />
-      <Filter onCategoryChange={handleCategoryChange}
-        search={search}
-        setSearch={setSearch}
-        onSearchChange={onSearchChange}
+      <ItemForm onItemFormSubmit={handleItemFormSubmit} />
+      <Filter
+        onSearchChange={handleSearchChange}
+        onCategoryChange={handleCategoryChange}
       />
       <ul className="Items">
-        {itemsToDisplay.filter((item) => {
-          if (search === "") {
-            return true;
-          } else if (item.name.toLowerCase().includes(search.toLowerCase())) {
-            return true;
-          } else {
-            return false;
-          }
-        }).map((item) => (
+        {filteredItems.map((item) => (
           <Item key={item.id} name={item.name} category={item.category} />
         ))}
       </ul>
